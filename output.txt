@@ -1,0 +1,3 @@
+SQLi vulnerability at line 7:     sprintf(query, "SELECT * FROM users WHERE id = %s", input);
+SQLi vulnerability at line 10:     printf("SELECT * FROM logs WHERE msg = '%s'", input);
+SQLi vulnerability at line 12:     strcat(query, " OR '1'='1' -- ");
