@@ -4,15 +4,30 @@
 
 #define MAX_LINE 1024
 
+bool contains_or_equals(const char *line) 
+{
+    const char *or_ptr = strstr(line, "OR");
+    if (!or_ptr) return false;
+
+    if ((or_ptr == line || *(or_ptr - 1) == ' ') &&
+        (*(or_ptr + 2) == ' ' || *(or_ptr + 2) == '\'' || *(or_ptr + 2) == '\"')) 
+    {
+        
+        const char *equals_ptr = strchr(or_ptr, '=');
+        if (equals_ptr) return true;
+    }
+
+    return false;
+}
+
 bool is_sqli_line(const char *line) 
 {
-    
-    const char *sql_patterns[] = 
+    const char *sql_keywords[] = 
     {
-        "SELECT", "INSERT", "UPDATE", "DELETE", 
-        "WHERE", "FROM", "UNION", "EXEC", "OR '1'", "--"
+        "SELECT", "INSERT", "UPDATE", "DELETE",
+        "WHERE", "FROM", "UNION", "EXEC", "JOIN"
     };
-    
+
     const char *dangerous_functions[] = 
     {
         "sprintf", "snprintf", "strcat", "strncat",
@@ -28,20 +43,22 @@ bool is_sqli_line(const char *line)
     bool has_danger = false;
     bool has_input = false;
 
-    for (int i = 0; i < 9; i++) 
+    for (int i = 0; i < sizeof(sql_keywords) / sizeof(sql_keywords[0]); i++) 
     {
-        if (strstr(line, sql_patterns[i])) has_sql = true;
+        if (strstr(line, sql_keywords[i])) has_sql = true;
     }
 
-    for (int i = 0; i < 7; i++) 
+    for (int i = 0; i < sizeof(dangerous_functions) / sizeof(dangerous_functions[0]); i++) 
     {
         if (strstr(line, dangerous_functions[i])) has_danger = true;
     }
 
-    for (int i = 0; i < 5; i++) 
+    for (int i = 0; i < sizeof(input_sources) / sizeof(input_sources[0]); i++) 
     {
         if (strstr(line, input_sources[i])) has_input = true;
     }
+
+    if (contains_or_equals(line)) return true;
 
     return (has_sql && has_danger) || (has_input && has_sql);
 }
@@ -66,12 +83,12 @@ int main(int argc, char *argv[])
 
     while (fgets(line, sizeof(line), fp)) 
     {
-        char *comment = strchr(line, '/');
-        if (comment && comment[1] == '/') *comment = '\0';
+        char *comment = strstr(line, "//");
+        if (comment) *comment = '\0';
 
         if (is_sqli_line(line)) 
         {
-            printf("Line %d: %s", line_num, line);
+            printf("SQLi vulnerability at line %d: %s", line_num, line);
         }
         line_num++;
     }
