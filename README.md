@@ -21,28 +21,58 @@ If a line contains both SQL logic and either user input or dangerous functions, 
 ### Compilation
 
 ```bash
-gcc newmain.c -o sqli_detector -Wall
+gcc main.c -o sqli_detector -Wall
 
 ```
 ### Sample input
 
 ```bash
-
 #include <stdio.h>
+#include <string.h>
 
 int main() {
-    char input[100];
-    char query[200];
+    char query[256];
+    char name[100];
 
-    sprintf(query, "SELECT * FROM users WHERE id = %s", input);
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s' OR '1'='1'", name);
+    printf("%s\n", query);
 
-    scanf("%s", input);
-    printf("SELECT * FROM logs WHERE msg = '%s'", input);
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s' OR '2'='2'", name);
+    printf("%s\n", query);
 
-    strcat(query, " OR '1'='1' -- ");
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s' UNION SELECT username, password FROM admins", name);
+    printf("%s\n", query);
+
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s' AND '1'='1'", name);
+    printf("%s\n", query);
+
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s' OR '\\'1'='1'", name);
+    printf("%s\n", query);
+
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s' OR \"1\"=\"1\"", name);
+    printf("%s\n", query);
+
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s' OR '\\\\'1'='1'", name);
+    printf("%s\n", query);
+
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s'", name);
+    printf("%s\n", query);
+
+    scanf("%s", name);
+    sprintf(query, "SELECT * FROM users WHERE name = '%s'", name);
+    printf("%s\n", query);
 
     return 0;
 }
+
 
 ```
 
@@ -50,8 +80,27 @@ int main() {
 
 ```bash
 
-SQLi vulnerability at line 7:     sprintf(query, "SELECT * FROM users WHERE id = %s", input);
-SQLi vulnerability at line 10:     printf("SELECT * FROM logs WHERE msg = '%s'", input);
-SQLi vulnerability at line 12:     strcat(query, " OR '1'='1' -- ");
-
+Potential vulnerabilities at Line 9:
+        SQL Injection detected
+Potential vulnerabilities at Line 14:
+        SQL Injection detected
+Potential vulnerabilities at Line 17:
+        SQL Injection detected
+Potential vulnerabilities at Line 19:
+        SQL Injection detected
+Potential vulnerabilities at Line 24:
+        SQL Injection detected
+Potential vulnerabilities at Line 29:
+        SQL Injection detected
+        Escaped Input detected
+Potential vulnerabilities at Line 34:
+        SQL Injection detected
+        Escaped Input detected
+Potential vulnerabilities at Line 39:
+        SQL Injection detected
+        Escaped Input detected
+Potential vulnerabilities at Line 44:
+        SQL Injection detected
+Potential vulnerabilities at Line 49:
+        SQL Injection detected
 ```
