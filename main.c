@@ -27,7 +27,7 @@ bool is_sqli_line(const char *line)
     bool has_danger = false;
     bool has_input = false;
 
-    for (int i = 0; i < 9; i++) 
+    for (int i = 0; i < 10; i++) 
     {
         if (strstr(line, sql_patterns[i])) has_sql = true;
     }
